@@ -20,7 +20,7 @@ type SearchResponse struct {
 }
 
 func OriginalUrl(url string) string {
-	if strings.HasSuffix(url, "100x100bb.jpg") {
+	if strings.HasSuffix(url, ".jpg/100x100bb.jpg") {
 		parts := strings.Split(url, "/100x100bb.jpg")
 		if len(parts) > 1 {
 			baseUrl := parts[0]

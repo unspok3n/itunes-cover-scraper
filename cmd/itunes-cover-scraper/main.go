@@ -34,7 +34,7 @@ func main() {
 		if originalUrl != "" {
 			coverUrl = originalUrl
 		} else {
-			coverUrl = strings.Replace(rawUrl, "100x100bb.jpg", "3000x3000.jpg", 1)
+			coverUrl = strings.Replace(rawUrl, "100x100bb.jpg", "3000x3000bb.jpg", 1)
 		}
 
 		err = DownloadFile(coverUrl, "cover.jpg")
