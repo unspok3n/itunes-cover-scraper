@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,6 +23,7 @@ func main() {
 		input = strings.TrimSuffix(filename, filepath.Ext(filename))
 	}
 
+	fmt.Println("Searching...")
 	query := itunes.PrepareQuery(input)
 	search, err := itunes.Search(query)
 	if err != nil {
@@ -39,28 +41,33 @@ func main() {
 			coverUrl = strings.Replace(rawUrl, "100x100bb.jpg", "3000x3000bb.jpg", 1)
 		}
 
+		fmt.Println("Downloading...")
 		err := DownloadFile(coverUrl, coverFilename)
 		if err != nil {
 			fmt.Println("Error downloading cover:", err)
-			return
 		}
+
+		fmt.Println("Removing metadata...")
 		data, err := os.ReadFile(coverFilename)
 		if err != nil {
 			fmt.Println("Error reading cover:", err)
-			return
 		}
+
 		filtered, err := StripExif(data)
 		if err != nil {
-			fmt.Println("Error removing EXIF metadata:", err)
-			return
+			if !errors.Is(err, ErrExifMarkerNotFound) {
+				fmt.Println("Error removing EXIF metadata:", err)
+			}
+		} else {
+			if err := os.WriteFile(coverFilename, filtered, 0644); err != nil {
+				fmt.Println("Error saving cover file:", err)
+			}
 		}
-		if err := os.WriteFile(coverFilename, filtered, 0644); err != nil {
-			fmt.Println("Error saving cover file:", err)
-		}
+
 	} else {
 		fmt.Println("No results found")
 	}
 
-	fmt.Println("Press any key to exit")
+	fmt.Println("Press enter to exit")
 	fmt.Scanln()
 }
