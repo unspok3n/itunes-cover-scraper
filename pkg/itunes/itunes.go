@@ -2,6 +2,7 @@ package itunes
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -51,6 +52,10 @@ func PrepareQuery(query string) string {
 	return query
 }
 
+var (
+	ErrInvalidJsonp = errors.New("invalid jsonp")
+)
+
 func Search(query string) (*SearchResponse, error) {
 	endpoint := fmt.Sprintf(
 		"https://itunes.apple.com/search?callback=jQuery20309382196007363668_1726162953706&entity=song,album&media=music&entity=song&term=%s&country=nz&limit=1",
@@ -72,7 +77,8 @@ func Search(query string) (*SearchResponse, error) {
 	start := strings.Index(bodyStr, "(")
 	end := strings.LastIndex(bodyStr, ")")
 	if start == -1 || end == -1 || start >= end {
-		return nil, fmt.Errorf("jsonp parse error: %w", err)
+		fmt.Println(bodyStr)
+		return nil, ErrInvalidJsonp
 	}
 	jsonData := bodyStr[start+1 : end]
 
